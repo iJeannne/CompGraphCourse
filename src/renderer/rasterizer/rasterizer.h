@@ -191,23 +191,28 @@ namespace cg::renderer
 						float fw0 = float(w0) / float(area2);
 						float fw1 = float(w1) / float(area2);
 						float fw2 = float(w2) / float(area2);
+						// внутри цикла по пикселям
+	
 
 						// Интерполяция глубины в NDC (линейная по экрану) [web:24]
 						float z = fw0 * pa_ndc.z + fw1 * pb_ndc.z + fw2 * pc_ndc.z;
 						if (!std::isfinite(z)) continue;
 						z = std::min(1.f, std::max(-1.f, z));
-
-
-						// Depth test [web:44]
-						if (depth_test(z, size_t(x), size_t(y))) {
-							
-							// Простой цветовой градиент по барицентрикам, чтобы визуально увидеть треугольник
-							float3 rgb = float3{ fw0, fw1, fw2 };
-							cg::color out = cg::color::from_float3(rgb);
-							
-							// Запись цвета и глубины
-							render_target->item(size_t(x), size_t(y)) = RT::from_float3(out.to_float3());
-							if (depth_buffer) depth_buffer->item(size_t(x), size_t(y)) = z;
+						
+						// Переводим глубину из NDC [-1, 1] в [0, 1]
+						float z01 = 0.5f * (z + 1.f);
+						
+						// Depth test с нормализованной глубиной
+						if (depth_test(z01, size_t(x), size_t(y))) {
+						
+						  // Цветовой градиент по барицентрикам
+						  float3 rgb = float3{ fw0, fw1, fw2 };
+						  cg::color out = cg::color::from_float3(rgb);
+						
+						  // Запись цвета и глубины (по новому)
+						  render_target->item(size_t(x), size_t(y)) = RT::from_float3(out.to_float3());
+						  if (depth_buffer)
+						    depth_buffer->item(size_t(x), size_t(y)) = z01;
 						}
 					}
 				}
