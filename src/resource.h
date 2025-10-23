@@ -138,6 +138,10 @@ namespace cg
 	struct vertex
 	{
 		// TODO Lab: 1.03 Implement `cg::vertex` struct
+		float3 position;  // POSITION
+		float3 normal;    // NORMAL
+		float2 texcoord;  // TEXCOORD0
+		float3 ambient; 
 	};
 
 }// namespace cg
