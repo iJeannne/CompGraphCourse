@@ -33,10 +33,10 @@ void cg::world::model::load_obj(const std::filesystem::path& model_path)
 		/*default_vcols_fallback*/ false
 	);
 
-	if (!warn.empty()) {
-		// не критично, просто информируем
-		std::cerr << "tinyobj warning: " << warn << std::endl;
-	}
+	// if (!warn.empty()) {
+	// 	// не критично, просто информируем
+	// 	std::cerr << "tinyobj warning: " << warn << std::endl;
+	// }
 	if (!ok || !err.empty()) {
 		THROW_ERROR(std::string("tinyobj error: ") + err);
 	}
@@ -168,8 +168,10 @@ void model::fill_buffers(const std::vector<tinyobj::shape_t>& shapes, const tiny
 				// пропускаем не‑треугольные фейсы на всякий случай
 				continue;
 			}
-			const size_t index_offset = std::accumulate(mesh.num_face_vertices.begin(), mesh.num_face_vertices.begin() + f, size_t(0));
-
+			size_t index_offset = 0;
+			for (size_t k = 0; k < f; ++k) {
+			index_offset += static_cast<size_t>(mesh.num_face_vertices[k]);
+			}
 			// Вычислим нормаль треугольника, если нормалей нет
 			float3 tri_normal = compute_normal(attrib, mesh, index_offset);
 
