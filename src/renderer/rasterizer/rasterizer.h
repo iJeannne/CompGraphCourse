@@ -143,8 +143,8 @@ namespace cg::renderer
 				float w = p.w;
 				return (-w <= p.x && p.x <= w) && (-w <= p.y && p.y <= w) && (-w <= p.z && p.z <= w);
 			};
-			// if (!(inside(pa_clip) && inside(pb_clip) && inside(pc_clip))) continue;
-
+			// Мягкое отсечение: отбрасываем только треугольники целиком за камерой (все w <= 0)
+			if (pa_clip.w <= 0.f && pb_clip.w <= 0.f && pc_clip.w <= 0.f) continue;
 			// Деление на w => NDC [-1,1] [web:12]
 			float inv_wa = 1.f / pa_clip.w;
 			float inv_wb = 1.f / pb_clip.w;
@@ -194,13 +194,12 @@ namespace cg::renderer
 
 						// Интерполяция глубины в NDC (линейная по экрану) [web:24]
 						float z = fw0 * pa_ndc.z + fw1 * pb_ndc.z + fw2 * pc_ndc.z;
+						if (!std::isfinite(z)) continue;
+						z = std::min(1.f, std::max(-1.f, z));
+
 
 						// Depth test [web:44]
 						if (depth_test(z, size_t(x), size_t(y))) {
-							// Вызов pixel_shader: он сам вернёт cg::color; конверсия в RT — снаружи/при записи
-							// Защита от некорректной глубины
-							if (!std::isfinite(z)) continue;
-							z = std::min(1.f, std::max(-1.f, z));
 							
 							// Простой цветовой градиент по барицентрикам, чтобы визуально увидеть треугольник
 							float3 rgb = float3{ fw0, fw1, fw2 };
