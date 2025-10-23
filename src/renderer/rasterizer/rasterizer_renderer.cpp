@@ -60,8 +60,7 @@ void cg::renderer::rasterization_renderer::render()
 	};
 
 	// Очистка цветового и глубинного буфера 
-	rasterizer->clear_render_target(cg::unsigned_color{111, 15, 112}, DEFAULT_DEPTH); 
-
+	rasterizer->clear_render_target(cg::unsigned_color{0, 255, 0}, 1.0f);
 	// Отрисовка по всем shape модели: задаем VB/IB и вызываем draw 
 	for (size_t shape = 0; shape < model->get_index_buffers().size(); ++shape)
 	{
