@@ -55,9 +55,8 @@ void cg::renderer::rasterization_renderer::render()
 		return std::make_pair(clip, vertex_data); // пробрасываем атрибуты без изменений
 	};
 
-	rasterizer->pixel_shader = [](const cg::vertex& v, const float /*z*/) -> cg::color {
-		// Простой вывод: используем ambient из вершины [0,1]
-		return cg::color::from_float3(v.ambient); 
+	rasterizer->pixel_shader = [](const cg::vertex&, const float) -> cg::color {
+	return cg::color::from_float3(float3{1.f, 1.f, 1.f});
 	};
 
 	// Очистка цветового и глубинного буфера 
