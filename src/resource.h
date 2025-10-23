@@ -37,11 +37,15 @@ namespace cg
 	inline resource<T>::resource(size_t size)
 	{
 		// TODO Lab: 1.02 Implement `cg::resource` class
+		data.resize(size);
+        stride = size;         
 	}
 	template<typename T>
 	inline resource<T>::resource(size_t x_size, size_t y_size)
 	{
 		// TODO Lab: 1.02 Implement `cg::resource` class
+		data.resize(x_size * y_size);
+		stride = x_size; 
 	}
 	template<typename T>
 	inline resource<T>::~resource()
@@ -51,38 +55,44 @@ namespace cg
 	inline const T* resource<T>::get_data()
 	{
 		// TODO Lab: 1.02 Implement `cg::resource` class
+		return data.data();
 		return nullptr;
 	}
 	template<typename T>
 	inline T& resource<T>::item(size_t item)
 	{
 		// TODO Lab: 1.02 Implement `cg::resource` class
-		return T();
+		if (item >= data.size())
+			THROW_ERROR("resource::item(linear) out of range");
+		return data[item];
 	}
 	template<typename T>
 	inline T& resource<T>::item(size_t x, size_t y)
 	{
 		// TODO Lab: 1.02 Implement `cg::resource` class
-		return T();
+		const size_t idx = y * stride + x;
+		if (idx >= data.size())
+			THROW_ERROR("resource::item(x,y) out of range");
+		return data[idx];
 	}
 	template<typename T>
 	inline size_t resource<T>::size_bytes() const
 	{
 		// TODO Lab: 1.02 Implement `cg::resource` class
-		return 0;
+		return data.size() * item_size;
 	}
 	template<typename T>
 	inline size_t resource<T>::count() const
 	{
 		// TODO Lab: 1.02 Implement `cg::resource` class
-		return 0;
+		return data.size();
 	}
 
 	template<typename T>
 	inline size_t resource<T>::get_stride() const
 	{
 		// TODO Lab: 1.02 Implement `cg::resource` class
-		return 0;
+		return stride;
 	}
 
 	struct color
