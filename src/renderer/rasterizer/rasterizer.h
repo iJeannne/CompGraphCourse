@@ -143,7 +143,7 @@ namespace cg::renderer
 				float w = p.w;
 				return (-w <= p.x && p.x <= w) && (-w <= p.y && p.y <= w) && (-w <= p.z && p.z <= w);
 			};
-			if (!(inside(pa_clip) && inside(pb_clip) && inside(pc_clip))) continue;
+			// if (!(inside(pa_clip) && inside(pb_clip) && inside(pc_clip))) continue;
 
 			// Деление на w => NDC [-1,1] [web:12]
 			float inv_wa = 1.f / pa_clip.w;
@@ -198,23 +198,16 @@ namespace cg::renderer
 						// Depth test [web:44]
 						if (depth_test(z, size_t(x), size_t(y))) {
 							// Вызов pixel_shader: он сам вернёт cg::color; конверсия в RT — снаружи/при записи
-							cg::color out = pixel_shader(
-								// Можно выбрать один из вершинных атрибутов или интерполировать (минимум — проброс одного)
-								// Для простоты используем барицентрическую интерполяцию ambient/прочих полей VB, если нужно расширить.
-								VB{
-									// Предполагается VB с полями position, normal, texcoord, ambient
-									fw0 * va_ps.position + fw1 * vb_ps.position + fw2 * vc_ps.position,
-									fw0 * va_ps.normal   + fw1 * vb_ps.normal   + fw2 * vc_ps.normal,
-									fw0 * va_ps.texcoord + fw1 * vb_ps.texcoord,
-									fw0 * va_ps.ambient  + fw1 * vb_ps.ambient  + fw2 * vc_ps.ambient
-								},
-								z
-							);
-
-							// Запись цвета в RT; предполагаем RT — cg::unsigned_color [web:41]
+							// Защита от некорректной глубины
+							if (!std::isfinite(z)) continue;
+							z = std::min(1.f, std::max(-1.f, z));
+							
+							// Простой цветовой градиент по барицентрикам, чтобы визуально увидеть треугольник
+							float3 rgb = float3{ fw0, fw1, fw2 };
+							cg::color out = cg::color::from_float3(rgb);
+							
+							// Запись цвета и глубины
 							render_target->item(size_t(x), size_t(y)) = RT::from_float3(out.to_float3());
-
-							// Обновление z-буфера [web:44]
 							if (depth_buffer) depth_buffer->item(size_t(x), size_t(y)) = z;
 						}
 					}
