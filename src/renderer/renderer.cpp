@@ -92,10 +92,7 @@ void cg::renderer::renderer::move_pitch(float delta)
 	camera->set_phi(camera->get_phi() + delta);
 }
 
-void cg::renderer::renderer::load_model()
-{
-	camera->set_phi(camera->get_phi() + delta);
-}
+
 
 void cg::renderer::renderer::load_model()
 {
