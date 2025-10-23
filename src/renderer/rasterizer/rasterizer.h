@@ -156,8 +156,8 @@ namespace cg::renderer
 
 			// Viewport transform в экранные целочисленные координаты пикселя [web:57]
 			auto to_screen = [&](const float3& p){
-				int sx = int((p.x + 1.f) * 0.5f * float(width  - 1));
-				int sy = int((1.f - (p.y + 1.f) * 0.5f) * float(height - 1)); // инверсия Y [web:12]
+				int sx = int((p.x + 1.f) * 0.5f * float(width));
+				int sy = int((1.f - (p.y + 1.f) * 0.5f) * float(height));
 				return int3{ sx, sy, int(std::round(p.z * 2147483647.0f)) };  // z хранить как float ниже; тут int3 только для удобства xy
 			};
 			int3 sa = to_screen(pa_ndc);
