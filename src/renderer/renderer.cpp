@@ -99,30 +99,9 @@ void cg::renderer::renderer::load_model()
 	// TODO Lab: 1.03 Adjust `cg::renderer::rasterization_renderer` and `cg::renderer::renderer` classes to consume `cg::world::model`
 	// Создаём и загружаем модель из settings->model_path, затем передаём активному рендереру (для растеризации).
 	auto mdl = std::make_shared<cg::world::model>();
-	mdl->load_obj(settings->model_path); // OBJ из настроек 
-	model = mdl;
+    mdl->load_obj(settings->model_path);
+    model = mdl;
 
-#ifdef RASTERIZATION
-	// Передаём модель внутрь растеризатора
-	if (auto rast = std::dynamic_pointer_cast<cg::renderer::rasterization_renderer>(shared_from_this()))
-	{
-		rast->set_model(model);
-	}
-#endif
-#ifdef RAYTRACING
-	// Для трассировщика — аналогично, если есть API set_scene/set_model
-	if (auto rt = std::dynamic_pointer_cast<cg::renderer::ray_tracing_renderer>(shared_from_this()))
-	{
-		// rt->set_model(model);
-	}
-#endif
-#ifdef DX12
-	if (auto dx = std::dynamic_pointer_cast<cg::renderer::dx12_renderer>(shared_from_this()))
-	{
-		// dx12 загрузка ресурсами DX; можно пробросить путь или уже загруженную модель
-		// dx->set_model(model);
-	}
-#endif
 }
 
 
@@ -130,50 +109,18 @@ void cg::renderer::renderer::load_camera()
 {
 	// TODO Lab: 1.04 Setup an instance of camera `cg::world::camera` class in `cg::renderer::renderer` and `cg::renderer::rasterization_renderer` 
 	// Инициализируем камеру из settings, сохраняем в базовом renderer и передаём внутрь активного рендера.
-	auto cam = std::make_shared<cg::world::camera>();
-	cam->set_height(static_cast<float>(settings->height));          // высота RT влияет на aspect 
-	cam->set_width(static_cast<float>(settings->width));            // ширина RT влияет на aspect 
-
-	// Позиция из трёх чисел
-	float3 pos{ 0.f, 1.f, 5.f };
-	if (settings->camera_position.size() >= 3)
-	{
-		pos = float3{
-			settings->camera_position[0],
-			settings->camera_position[1],
-			settings->camera_position[2]
-		};
-	}
-	cam->set_position(pos);
-
-	// Углы ориентации
-	cam->set_phi(settings->camera_phi);                             // pitch/phi 
-	cam->set_theta(settings->camera_theta);                         // yaw/theta
-
-	// Параметры проекции
-	cam->set_angle_of_view(settings->camera_angle_of_view);         // обычно в градусах в учебных камерах 
-	cam->set_z_near(settings->camera_z_near);
-	cam->set_z_far(settings->camera_z_far);
-
-	// Сохраняем в базовом renderer (для управления через move_*)
-	camera = cam;
-
-#ifdef RASTERIZATION
-	if (auto rast = std::dynamic_pointer_cast<cg::renderer::rasterization_renderer>(shared_from_this()))
-	{
-		rast->set_camera(*cam); // пробрасываем копию/ссылку внутрь растеризатора
-	}
-#endif
-#ifdef RAYTRACING
-	if (auto rt = std::dynamic_pointer_cast<cg::renderer::ray_tracing_renderer>(shared_from_this()))
-	{
-		// rt->set_camera(*cam);
-	}
-#endif
-#ifdef DX12
-	if (auto dx = std::dynamic_pointer_cast<cg::renderer::dx12_renderer>(shared_from_this()))
-	{
-		// dx->set_camera(*cam);
-	}
-#endif
+	 auto cam = std::make_shared<cg::world::camera>();
+    cam->set_height(static_cast<float>(settings->height));
+    cam->set_width(static_cast<float>(settings->width));
+    float3 pos{0.f,1.f,5.f};
+    if (settings->camera_position.size() >= 3) {
+        pos = float3{settings->camera_position[0], settings->camera_position[1], settings->camera_position[2]};
+    }
+    cam->set_position(pos);
+    cam->set_phi(settings->camera_phi);
+    cam->set_theta(settings->camera_theta);
+    cam->set_angle_of_view(settings->camera_angle_of_view);
+    cam->set_z_near(settings->camera_z_near);
+    cam->set_z_far(settings->camera_z_far);
+    camera = cam;
 }
